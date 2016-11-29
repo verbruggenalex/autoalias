@@ -67,8 +67,6 @@ class ChangeDirectoryCommand extends Command
 
         // Set the aliases.
         file_put_contents($home . '/.composer_aliases', implode(PHP_EOL, $aliases));
-        // Refresh the bash.
-        passthru('/bin/bash');
       }
     }
   }

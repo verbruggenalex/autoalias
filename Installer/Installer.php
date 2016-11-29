@@ -19,9 +19,6 @@ class Installer
     // Add the replacement cd function to the ~/.bashrc file.
     Installer::addReplacementFunctionToBash($home);
 
-    // Add the inclusion for the ~/.composer_aliases file.
-    Installer::addFileInclusionToBash($home);
-
     // Refresh the bash.
     passthru('/bin/bash');
 
@@ -79,6 +76,9 @@ class Installer
       '# ================================================================================',
       '# Autoalias function execution. Do not alter.',
       '  php ' . $autoalias_root . '/autoalias cd $origin',
+      '  if [ -f ~/.composer_aliases ]; then',
+      '      . ~/.composer_aliases',
+      '  fi',
       '# ================================================================================',
       '}',
       ''
@@ -108,39 +108,6 @@ class Installer
         }
         else {
           echo "Could not add cd function to ~/.bashr. Please add manually.\n";
-        }
-      }
-    }
-    else {
-      echo "No ~/.bashrc file found.\n";
-    }
-  }
-
-  protected static function addFileInclusionToBash($home) {
-
-    $bashrc = $home . '/.bashrc';
-
-    $composer_aliases_include = array(
-      '# ================================================================================',
-      '# Autoalias include start: do not alter.',
-      '  if [ -f ~/.composer_aliases ]; then',
-      '      . ~/.composer_aliases',
-      '  fi',
-      '# Autoalias include end.',
-      '# ================================================================================',
-    );
-
-    if ($contents = file_get_contents($bashrc)) {
-      // Look if the inclusion is present in the file.
-      if (preg_match('/# \=+\n# Autoalias include start: do not alter\.(.*)# Autoalias include end\.\n# \=+/s', $contents, $matches)) {
-        echo "Found inclusion.\n";
-      }
-      else {
-        if (file_put_contents($bashrc, PHP_EOL . implode(PHP_EOL, $composer_aliases_include), FILE_APPEND | LOCK_EX)) {
-          echo "Composer aliases inclusion added to ~/.bashrc.\n";
-        }
-        else {
-          echo "Could not add inclusion code to ~/.bashr. Please add manually.\n";
         }
       }
     }
