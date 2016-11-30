@@ -41,20 +41,10 @@ class ChangeDirectoryCommand extends Command
       }
     }
 
-    // Load the index.
-    $yaml = Yaml::parse(file_get_contents(__DIR__ . '/../index.yml'));
-
     $aliases = array();
-    $includes = isset($yaml['include']) ? array_keys($yaml['include']) : array();
-    $includes_escaped = array_map(function ($elem) {
-      return preg_quote($elem, '~');
-    }, $includes);
-    preg_match('~' . implode('|', $includes_escaped) . '~', $destination, $destination_project);
-    preg_match('~' . implode('|', $includes_escaped) . '~', $origin, $origin_project);
-    $destination_root = !empty($destination_project[0]) ? $destination_project[0] : '';
-    $origin_root = !empty($origin_project[0]) ? $origin_project[0] : '';
-    $destination_bin_dir = isset($yaml['include'][$destination_root]['bin-dir']) ? $destination_root . '/' . $yaml['include'][$destination_root]['bin-dir'] : FALSE;
-    $origin_bin_dir = isset($yaml['include'][$origin_root]['bin-dir']) ? $origin_root . '/' . $yaml['include'][$origin_root]['bin-dir'] : FALSE;
+    $yaml = Yaml::parse(file_get_contents(__DIR__ . '/../index.yml'));
+    $variables = $this->generateVariablesForAliasGeneration($origin, $destination, $yaml);
+    list($destination_root, $destination_bin_dir, $origin_root, $origin_bin_dir) = $variables;
 
     // If our destination belongs to an indexed project.
     if ($destination_root
@@ -72,13 +62,16 @@ class ChangeDirectoryCommand extends Command
         if (!isset($yaml['exclude'][$destination_root]) && $destination_bin_dir) {
           $this->addProjectAliases('set', $destination_bin_dir, $aliases);
           $output->writeln('<error>Entered project: aliases in effect.</error>', OutputInterface::VERBOSITY_VERBOSE);
-        } else {
+        }
+        // If it is exluded, notify the user.
+        else {
           $output->writeln('<error>Project excluded: no aliases in effect.</error>', OutputInterface::VERBOSITY_VERBOSE);
         }
 
-        // Set the aliases.
+        // Write the alias commands to the file.
         file_put_contents($composer_aliases, implode(PHP_EOL, $aliases));
-      } // If we are not in a project and don't have to unset any aliases.
+      }
+      // If we are not in a project and don't have to unset any aliases.
       else {
         // Remove any content from the composer aliases file.
         $this->clearFile($composer_aliases);
@@ -98,21 +91,17 @@ class ChangeDirectoryCommand extends Command
   }
 
   /**
-   * Helper function to add alias commands for a project.
+   * Helper function to update alias commands for a project.
    *
    * @param string $type
-   *   Type must be set to 'set' or 'unset' to generate the correct alias command.
+   *   Type must be set to 'set' or 'unset' to generate the correct alias commands.
    * @param string $project_bin_dir
    *   The path to the project bin folder.
    * @param array $aliases
    *   An array of alias commands to add more alias commands to.
-   *
-   * @return array $aliases
-   *   The updated array of alias commands.
    */
-  private function addProjectAliases($type, $project_bin_dir, &$aliases = array())
+  private function addProjectAliases($type, $project_bin_dir, &$aliases)
   {
-
     $files = file_exists($project_bin_dir) ? array_diff(scandir($project_bin_dir), array('..', '.')) : array();
     foreach ($files as $filename) {
       $path = realpath($project_bin_dir . '/' . $filename);
@@ -147,5 +136,38 @@ class ChangeDirectoryCommand extends Command
       ftruncate($fp, 0);
       fclose($fp);
     }
+  }
+
+  /**
+   * Helper function to generate variables needed for the alias generation logic.
+   *
+   * @param $origin
+   *   The path we came from.
+   * @param $destination
+   *   The path we are currently in.
+   * @param $yaml
+   *   The index file.
+   *
+   * @return array
+   *   An array consisting of 4 needed variables.
+   */
+  private function generateVariablesForAliasGeneration($origin, $destination, $yaml) {
+    // Setup all variables.
+    $includes = isset($yaml['include']) ? array_keys($yaml['include']) : array();
+    $includes_escaped = array_map(function ($elem) { return preg_quote($elem, '~'); }, $includes);
+    preg_match('~' . implode('|', $includes_escaped) . '~', $destination, $destination_project);
+    preg_match('~' . implode('|', $includes_escaped) . '~', $origin, $origin_project);
+    $destination_root = !empty($destination_project[0]) ? $destination_project[0] : '';
+    $origin_root = !empty($origin_project[0]) ? $origin_project[0] : '';
+    $destination_bin_dir = isset($yaml['include'][$destination_root]['bin-dir']) ? $destination_root . '/' . $yaml['include'][$destination_root]['bin-dir'] : FALSE;
+    $origin_bin_dir = isset($yaml['include'][$origin_root]['bin-dir']) ? $origin_root . '/' . $yaml['include'][$origin_root]['bin-dir'] : FALSE;
+
+    // Return needed variables.
+    return array(
+      $destination_root,
+      $destination_bin_dir,
+      $origin_root,
+      $origin_bin_dir
+    );
   }
 }
