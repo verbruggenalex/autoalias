@@ -22,8 +22,8 @@ class ChangeDirectoryCommand extends Command
   protected function execute(InputInterface $input, OutputInterface $output)
   {
     // Set parameters.
-    $origin = $input->getArgument('origin');
-    $destination = getcwd();
+    $origin = realpath($input->getArgument('origin'));
+    $destination = realpath(getcwd());
     $home = exec('echo ~');
     $index = __DIR__ . '/../index.yml';
     $composer_aliases = $home . '/.composer_aliases';
