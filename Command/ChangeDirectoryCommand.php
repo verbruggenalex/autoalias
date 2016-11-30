@@ -24,22 +24,13 @@ class ChangeDirectoryCommand extends Command
     // Set parameters.
     $origin = $input->getArgument('origin');
     $destination = getcwd();
-    $yaml = Yaml::parse(file_get_contents(__DIR__ . '/../index.yml'));
     $home = exec('echo ~');
+    $index = __DIR__ . '/../index.yml';
     $composer_aliases = $home . '/.composer_aliases';
+    $composer_json = $destination . '/composer.json';
 
-    // Add composer project root to index, or update it.
-    if (file_exists($destination . '/composer.json')) {
-      $json = file_get_contents($destination . '/composer.json');
-      $composer = json_decode($json);
-
-      if (!empty($composer->config->{'bin-dir'}) && file_exists($composer->config->{'bin-dir'})) {
-        $bin_dir = rtrim($composer->config->{'bin-dir'}, '/');
-        $yaml['include'][$destination]['bin-dir'] = $bin_dir;
-        $updated_yaml = Yaml::dump($yaml, 5);
-        file_put_contents(__DIR__ . '/../index.yml', $updated_yaml);
-      }
-    }
+    // Update our composer projects index.
+    $this->updateIndex($destination, $index);
 
     $aliases = array();
     $yaml = Yaml::parse(file_get_contents(__DIR__ . '/../index.yml'));
@@ -79,7 +70,9 @@ class ChangeDirectoryCommand extends Command
     }
     // Else if we come from a project but are not currently in one. Unset the
     // aliases of previous project.
-    elseif ($origin_root && $origin_root != $destination_root) {
+    elseif ($origin_root
+      && $origin_root != $destination_root
+    ) {
       $this->addProjectAliases('unset', $origin_bin_dir, $aliases);
       file_put_contents($composer_aliases, implode(PHP_EOL, $aliases));
       $output->writeln('<error>Exited project: no aliases in effect.</error>', OutputInterface::VERBOSITY_VERBOSE);
@@ -88,6 +81,39 @@ class ChangeDirectoryCommand extends Command
       // Remove any content from the composer aliases file.
       $this->clearFile($composer_aliases);
     }
+  }
+
+  /**
+   * Helper function to generate variables needed for the alias generation logic.
+   *
+   * @param $origin
+   *   The path we came from.
+   * @param $destination
+   *   The path we are currently in.
+   * @param $yaml
+   *   The index file.
+   *
+   * @return array
+   *   An array consisting of 4 needed variables.
+   */
+  private function generateVariablesForAliasGeneration($origin, $destination, $yaml) {
+    // Setup all variables.
+    $includes = isset($yaml['include']) ? array_keys($yaml['include']) : array();
+    $includes_escaped = array_map(function ($elem) { return preg_quote($elem, '~'); }, $includes);
+    preg_match('~' . implode('|', $includes_escaped) . '~', $destination, $destination_project);
+    preg_match('~' . implode('|', $includes_escaped) . '~', $origin, $origin_project);
+    $destination_root = !empty($destination_project[0]) ? $destination_project[0] : '';
+    $origin_root = !empty($origin_project[0]) ? $origin_project[0] : '';
+    $destination_bin_dir = isset($yaml['include'][$destination_root]['bin-dir']) ? $destination_root . '/' . $yaml['include'][$destination_root]['bin-dir'] : FALSE;
+    $origin_bin_dir = isset($yaml['include'][$origin_root]['bin-dir']) ? $origin_root . '/' . $yaml['include'][$origin_root]['bin-dir'] : FALSE;
+
+    // Return needed variables.
+    return array(
+      $destination_root,
+      $destination_bin_dir,
+      $origin_root,
+      $origin_bin_dir
+    );
   }
 
   /**
@@ -125,8 +151,8 @@ class ChangeDirectoryCommand extends Command
   /**
    * Helper function to clear file from content.
    *
-   * @param $file
-   *   File to clear from content.
+   * @param string $file
+   *   Path to file to clear from content.
    */
   private function clearFile($file)
   {
@@ -139,35 +165,27 @@ class ChangeDirectoryCommand extends Command
   }
 
   /**
-   * Helper function to generate variables needed for the alias generation logic.
+   * Helper function to update our index.
    *
-   * @param $origin
-   *   The path we came from.
-   * @param $destination
-   *   The path we are currently in.
-   * @param $yaml
-   *   The index file.
-   *
-   * @return array
-   *   An array consisting of 4 needed variables.
+   * @param string $destination
+   *   Our current path to check for composer project.
+   * @param string $index
+   *   Path to our index file that holds all registered composer projects.
    */
-  private function generateVariablesForAliasGeneration($origin, $destination, $yaml) {
-    // Setup all variables.
-    $includes = isset($yaml['include']) ? array_keys($yaml['include']) : array();
-    $includes_escaped = array_map(function ($elem) { return preg_quote($elem, '~'); }, $includes);
-    preg_match('~' . implode('|', $includes_escaped) . '~', $destination, $destination_project);
-    preg_match('~' . implode('|', $includes_escaped) . '~', $origin, $origin_project);
-    $destination_root = !empty($destination_project[0]) ? $destination_project[0] : '';
-    $origin_root = !empty($origin_project[0]) ? $origin_project[0] : '';
-    $destination_bin_dir = isset($yaml['include'][$destination_root]['bin-dir']) ? $destination_root . '/' . $yaml['include'][$destination_root]['bin-dir'] : FALSE;
-    $origin_bin_dir = isset($yaml['include'][$origin_root]['bin-dir']) ? $origin_root . '/' . $yaml['include'][$origin_root]['bin-dir'] : FALSE;
+  private function updateIndex($destination, $index) {
+    $composer_json = $destination . '/composer.json';
+    $yaml = Yaml::parse(file_get_contents($index));
+    // Add composer project root to index, or update it.
+    if (file_exists($composer_json)) {
+      $json = file_get_contents($composer_json);
+      $composer = json_decode($json);
 
-    // Return needed variables.
-    return array(
-      $destination_root,
-      $destination_bin_dir,
-      $origin_root,
-      $origin_bin_dir
-    );
+      if (!empty($composer->config->{'bin-dir'}) && file_exists($composer->config->{'bin-dir'})) {
+        $bin_dir = rtrim($composer->config->{'bin-dir'}, '/');
+        $yaml['include'][$destination]['bin-dir'] = $bin_dir;
+        $updated_yaml = Yaml::dump($yaml, 5);
+        file_put_contents($index, $updated_yaml);
+      }
+    }
   }
 }
