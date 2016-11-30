@@ -70,9 +70,7 @@ class ChangeDirectoryCommand extends Command
     }
     // Else if we come from a project but are not currently in one. Unset the
     // aliases of previous project.
-    elseif ($origin_root
-      && $origin_root != $destination_root
-    ) {
+    elseif ($origin_root && $origin_bin_dir != $destination_bin_dir) {
       $this->addProjectAliases('unset', $origin_bin_dir, $aliases);
       file_put_contents($composer_aliases, implode(PHP_EOL, $aliases));
       $output->writeln('<error>Exited project: no aliases in effect.</error>', OutputInterface::VERBOSITY_VERBOSE);
