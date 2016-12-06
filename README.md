@@ -101,7 +101,7 @@ $ drush status
  PHP executable         :  /usr/bin/php
  PHP configuration      :  /etc/php/7.0/cli/php.ini
  PHP OS                 :  Linux
- Drush script           :  /var/www/subsite-starterkit/vendor/drush/drush/drush.php
+ Drush script           :  /var/www/your-project/vendor/drush/drush/drush.php
  Drush version          :  8.1.5
  Drush temp directory   :  /tmp
  Drush configuration    :
