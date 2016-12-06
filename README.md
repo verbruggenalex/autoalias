@@ -11,13 +11,13 @@ First off fetch the package. Currently there is no stable version, so
 you will just have the latest master. There are still todo's before I
 can release the first version.
 ```
-$ composer require "verbruggenalex/autoalias"
+$ composer require "verbruggenalex/autoalias:dev-master"
 ```
 
 ### Install the package
 Enter the package directory. And perform a composer install.
 ```
-$ cd autoalias
+$ cd vendor/verbruggenalex/autoalias
 $ composer install
 ```
 
