@@ -58,10 +58,8 @@ Generating autoload files
  This install script will source your .bashrc afterwards.
  
  So carefully check the message and/or verify that you have the needed
- file and code.
- 
- Your .bashrc file should have the following appended:
- ```bash
+ file and code. Your .bashrc file should have the following appended:
+```bash
  # ================================================================================
  # Autoalias function execution. Do not alter.
    function autoalias-function() {
