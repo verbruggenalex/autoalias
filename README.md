@@ -51,8 +51,8 @@ Generating autoload files
  ------------------------------------------------------------------------------
  ```
  The important thing is the post installation script. It needs to:
- * create an **.autoalias_aliases** file in your home directory.
- * append the autoalias-function and .autoalias_aliases file inclusion
+ - create an **.autoalias_aliases** file in your home directory.
+ - append the autoalias-function and .autoalias_aliases file inclusion
  in the **.bashrc** file of your home directory.
  This install script will source your .bashrc afterwards.
  
@@ -75,7 +75,7 @@ Generating autoload files
  # ================================================================================
  ```
 Where **%ROOT_INSTALL_PATH%** will be replaced with the location of where
-you installed the package. So moving it will break the functionality!
+you installed the package. **So moving it will break the functionality!**
 
 When first installed the included .autoalias_aliases file will be copied
 to your home directory. This file contains a few presets at the moment:
@@ -86,6 +86,8 @@ alias phing='autoalias-function phing'
 alias phpcbf='autoalias-function phpcbf'
 alias phpcs='autoalias-function phpcs'
  ```
+ **Note:** future functionality will be able to automatically add new
+ executables to the aliases file.
  
  ## Usage
  If all went well you should now receive a message when using one of
