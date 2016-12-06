@@ -1,11 +1,6 @@
 <?php
 namespace Autoalias\Component\Console\Installer;
 
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\ConsoleOutput;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
-
 class Installer
 {
 
@@ -15,87 +10,109 @@ class Installer
     $home = exec('echo ~');
     $bash = exec('echo which bash');
 
-    $input = null;
-    $output = new ConsoleOutput();
-
-    $output->writeln('<comment> ------------------------------------------------------------------------------');
-
     // Create our ~/.composer_aliases file.
     Installer::createComposerAliasesFile($home);
+
+    // Create our index.yml file.
+    Installer::createComposerIndexFile();
 
     // Add the replacement cd function to the ~/.bashrc file.
     Installer::addReplacementFunctionToBash($home);
 
-    $output->writeln(' ------------------------------------------------------------------------------</comment>');
-
     // Refresh the bash.
     passthru('/bin/bash');
-
-    exit();
 
   }
 
   protected static function createComposerAliasesFile($home) {
 
-    $input = null;
-    $output = new ConsoleOutput();
-
     $composer_aliases = $home . '/.composer_aliases';
 
     if (!is_file($composer_aliases)) {
       if (touch($composer_aliases)) {
-        $output->writeln('<comment> // ~/.composer_aliases: file created.</comment>');
+        echo "~/.composer_aliases file created.\n";
       }
       else {
-        $output->writeln('<comment> // ~/.composer_aliases: file creation failed.</comment>');
+        echo "Failed to create ~/.composer_aliases file. Please create one manually\n";
       }
     }
     else {
-      $output->writeln('<comment> // ~/.composer_aliases: file already exists.</comment>');
+      echo "The file ~/.composer_aliases does already exists.\n";
+    }
+  }
+
+  protected static function createComposerIndexFile() {
+
+    $index = getcwd(). '/index.yml';
+
+    if (!is_file($index)) {
+      if (touch($index)) {
+        echo getcwd() . "/index.yml file created.\n";
+      }
+      else {
+        echo "Failed to create index.yml file. Please create one manually\n";
+      }
+    }
+    else {
+      echo "The file index.yml does already exists.\n";
     }
   }
 
   protected static function addReplacementFunctionToBash($home) {
 
-    $input = null;
-    $output = new ConsoleOutput();
-
     $bashrc = $home . '/.bashrc';
     $autoalias_root = getcwd();
 
     $cd_replacement_function = array(
+      'function cd() {',
+      '# ================================================================================',
+      '# Autoalias function parameter. Do not alter.',
+      '  origin=$(pwd)',
+      '# ================================================================================',
+      '',
+      '    # Change the directory.',
+      '    builtin cd "$@"',
       '',
       '# ================================================================================',
       '# Autoalias function execution. Do not alter.',
-      '  function autoalias-function() {',
-      '      params=${@:2}',
-      '      command=$(php -f ' . $autoalias_root . '/autoalias autoalias:execute --command=$1 --params="${params// \ }")',
-      '      php ' . $autoalias_root . '/autoalias autoalias:message --command=${command%% *}',
-      '      $command',
-      '  }',
+      '  php ' . $autoalias_root . '/autoalias cd $origin',
       '  if [ -f ~/.composer_aliases ]; then',
       '      . ~/.composer_aliases',
       '  fi',
       '# ================================================================================',
+      '}',
       ''
     );
 
     if ($contents = file_get_contents($bashrc)) {
-      if (preg_match('/# \=+\n# Autoalias function execution\. Do not alter\.\n(.*)# \=+/s', $contents)) {
-        // @todo: give user the option to switch installation to the new one.
-        $output->writeln('<comment> // ~/.bashrc: autoalias already installed.</comment>');
+      // Look if the cd function is present in the file.
+      if (preg_match('/function cd\(\).*{(.*)}/s', $contents, $matches)) {
+        echo "Found function.\n";
+        if (preg_match('/# \=+\n# Autoalias function parameter\. Do not alter\.\n(.*)# \=+/s', $matches[1])) {
+          echo "Found PARAMETER\n";
+        }
+        else {
+          // @toto: Insert the parameter strings first within function.
+        }
+
+        if (preg_match('/# \=+\n# Autoalias function execution\. Do not alter\.\n(.*)# \=+/s', $matches[1])) {
+          echo "Found EXECUTION\n";
+        }
+        else {
+          // @toto: Insert the function strings last within function.
+        }
       }
       else {
         if (file_put_contents($bashrc, PHP_EOL . implode(PHP_EOL, $cd_replacement_function), FILE_APPEND | LOCK_EX)) {
-          $output->writeln('<comment> // ~/.bashrc: autoalias succesfully added.</comment>');
+          echo "Cd function added to ~/.bashrc.\n";
         }
         else {
-          $output->writeln('<comment> // ~/.bashrc: failed to append required code.</comment>');
+          echo "Could not add cd function to ~/.bashr. Please add manually.\n";
         }
       }
     }
     else {
-      $output->writeln('<comment> // ~/.bashrc: file found.</comment>');
+      echo "No ~/.bashrc file found.\n";
     }
   }
 }
