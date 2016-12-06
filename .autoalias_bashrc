@@ -1,0 +1,14 @@
+
+# ================================================================================
+# Autoalias function execution. Do not alter.
+  function autoalias-function() {
+      params=${@:2}
+      command=$(php %ROOT_INSTALL_PATH%/autoalias autoalias:execute --command=$1 --params="${params// \ }")
+      php %ROOT_INSTALL_PATH%/autoalias autoalias:message --command=${command%% *}
+      $command
+  }
+  if [ -f ~/.autoalias_aliases ]; then
+      . ~/.autoalias_aliases
+  fi
+# ================================================================================
+
