@@ -54,6 +54,8 @@ Generating autoload files
  - create an **.autoalias_aliases** file in your home directory.
  - append the autoalias-function and .autoalias_aliases file inclusion
  in the **.bashrc** file of your home directory.
+ 
+ 
  This install script will source your .bashrc afterwards.
  
  So carefully check the message and/or verify that you have the needed
@@ -108,3 +110,8 @@ alias phpcs='autoalias-function phpcs'
   Drush alias files      :
  ```
 **Note:** The comment about the configuration is yet to be implemented.
+**Note:** If running your command has no output it might be you need to
+source the .bashrc yourself, for that you can use:
+```
+$ . ~/.bashrc
+```
