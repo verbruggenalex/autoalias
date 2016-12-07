@@ -12,7 +12,7 @@
         }
     },
     "scripts": {
-        "post-install-cmd": "Autoalias\\Component\\Console\\Installer\\Installer::postInstall",
-        "post-update-cmd": "Autoalias\\Component\\Console\\Installer\\Installer::postInstall"
+        "post-package-install": "Autoalias\\Component\\Console\\Installer\\Installer::postInstall",
+        "post-package-update": "Autoalias\\Component\\Console\\Installer\\Installer::postInstall"
     }
 }
