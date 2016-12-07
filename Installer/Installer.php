@@ -12,7 +12,6 @@ class Installer
     $home = exec('echo ~');
     $bash = exec('echo which bash');
 
-    $input = null;
     $output = new ConsoleOutput();
 
     $output->writeln('<comment> ------------------------------------------------------------------------------');
@@ -28,8 +27,54 @@ class Installer
     // Refresh the bash.
     passthru('/bin/bash');
 
-    exit();
+  }
 
+  public static function preUninstall() {
+
+    // Get the home folder.
+    $home = exec('echo ~');
+    $bash = exec('echo which bash');
+    $bashrc = $home . '/.bashrc';
+    $autoalias_aliases = $home . '/.autoalias_aliases';
+
+    $output = new ConsoleOutput();
+
+    $output->writeln('<comment> ------------------------------------------------------------------------------</comment>');
+
+    // @todo: find a way to unalias the set autoaliases.
+    if (file_exists($autoalias_aliases) && unlink($autoalias_aliases)) {
+      $output->writeln('<comment> // ~/.autoalias_aliases: file deleted.</comment>');
+    }
+    else {
+      $output->writeln('<comment> // ~/.autoalias_aliases: unable to remove, may not exist.</comment>');
+    }
+
+    if (file_exists($bashrc) && $contents = file_get_contents($bashrc)) {
+      if ($filtered_contents = preg_replace('/# \=+\n# Autoalias function execution\. Do not alter\.\n(.*)# \=+/s', '', $contents)) {
+        if ($filtered_contents != $contents) {
+          if (file_put_contents($bashrc, $filtered_contents,LOCK_EX)) {
+            $output->writeln('<comment> // ~/.bashrc: autoalias code successfully removed.</comment>');
+          }
+          else {
+            $output->writeln('<comment> // ~/.bashrc: failed to remove autalias code. Please do this manually.</comment>');
+          }
+        }
+        else {
+          $output->writeln('<comment> // ~/.bashrc: no autoalias code detected that can be removed.</comment>');
+        }
+      }
+      else {
+        $output->writeln('<comment> // ~/.bashrc: failed to detect autoalias code. Please remove manually if necessary.</comment>');
+      }
+    }
+    else {
+      $output->writeln('<comment> // ~/.bashrc: file not found.</comment>');
+    }
+
+    $output->writeln('<comment> ------------------------------------------------------------------------------</comment>');
+
+    // Refresh the bash.
+    passthru('/bin/bash');
   }
 
   protected static function createComposerAliasesFile($home) {

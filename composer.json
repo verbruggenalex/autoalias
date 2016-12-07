@@ -13,6 +13,7 @@
     },
     "scripts": {
         "post-install-cmd": "Autoalias\\Component\\Console\\Installer\\Installer::postInstall",
-        "post-update-cmd": "Autoalias\\Component\\Console\\Installer\\Installer::postInstall"
+        "post-update-cmd": "Autoalias\\Component\\Console\\Installer\\Installer::postInstall",
+        "pre-package-uninstall": "Autoalias\\Component\\Console\\Installer\\Installer::preUninstall"
     }
 }
