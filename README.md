@@ -26,8 +26,8 @@ The result of the installation should look something like this:
 ```
 > Autoalias\Component\Console\Installer\Installer::postInstall
  ------------------------------------------------------------------------------
- // ~/.autoalias_aliases: file already exists.
- // ~/.bashrc: autoalias already installed.
+ // ~/.autoalias_aliases: file created.
+ // ~/.bashrc: autoalias succesfully added.
  ------------------------------------------------------------------------------
 ```
 The important thing is the post installation script. It needs to:
