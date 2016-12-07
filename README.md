@@ -24,31 +24,10 @@ $ composer run-script post-install-cmd  ~/.composer/vendor/verbruggenalex/autoal
 
 The result of the installation should look something like this:
 ```
-Loading composer repositories with package information
-Updating dependencies (including require-dev)
-  - Installing psr/log (1.0.2)
-    Loading from cache
-
-  - Installing symfony/debug (v3.0.9)
-    Loading from cache
-
-  - Installing symfony/polyfill-mbstring (v1.3.0)
-    Loading from cache
-
-  - Installing symfony/console (v2.8.14)
-    Loading from cache
-
-  - Installing symfony/yaml (v2.8.14)
-    Loading from cache
-
-symfony/console suggests installing symfony/event-dispatcher ()
-symfony/console suggests installing symfony/process ()
-Writing lock file
-Generating autoload files
 > Autoalias\Component\Console\Installer\Installer::postInstall
  ------------------------------------------------------------------------------
- // ~/.autoalias_aliases: file created.
- // ~/.bashrc: autoalias succesfully added.
+ // ~/.autoalias_aliases: file already exists.
+ // ~/.bashrc: autoalias already installed.
  ------------------------------------------------------------------------------
 ```
 The important thing is the post installation script. It needs to:
