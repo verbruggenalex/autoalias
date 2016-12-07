@@ -11,14 +11,15 @@ First off fetch the package. Currently there is no stable version, so
 you will just have the latest master. There are still todo's before I
 can release the first version.
 ```
-$ composer require "verbruggenalex/autoalias:dev-master"
+$ composer global require "verbruggenalex/autoalias:dev-master"
 ```
 
 ### Install the package
-Enter the package directory. And perform a composer install.
+Execute the install script from the package. This assumes your home 
+directory is the location of your global composer install. So adjust
+your path accordingly.
 ```
-$ cd vendor/verbruggenalex/autoalias
-$ composer install
+$ composer run-script post-install-cmd  ~/.composer/vendor/verbruggenalex/autoalias
 ```
 
 The result of the installation should look something like this:

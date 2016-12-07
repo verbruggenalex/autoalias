@@ -7,7 +7,6 @@
       php %ROOT_INSTALL_PATH%/autoalias autoalias:message --command=${command%% *}
       $command
   }
-  export AUTOALIAS_HOME=%ROOT_INSTALL_PATH%
   if [ -f ~/.autoalias_aliases ]; then
       . ~/.autoalias_aliases
   fi
