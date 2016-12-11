@@ -7,9 +7,9 @@ require __DIR__.'/vendor/autoload.php';
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Autoalias\Component\Console\Command\AutoAliasExecuteCommand;
-use Autoalias\Component\Console\Command\AutoAliasMessageCommand;
+use Autoalias\Component\Console\Command\AutoAliasRefreshCommand;
 
 $application = new Application('Autoalias', '1.0.0');
 $application->add(new AutoAliasExecuteCommand());
-$application->add(new AutoAliasMessageCommand());
+$application->add(new AutoAliasRefreshCommand());
 $application->run();

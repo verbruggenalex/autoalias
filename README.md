@@ -41,43 +41,50 @@ may become activated.
 Carefully check the message and/or verify that you have the needed
 file and code. Your .bashrc file should have the following appended:
 ```bash
- # ================================================================================
- # Autoalias function execution. Do not alter.
-   function autoalias-function() {
-       params=${@:2}
-       command=$(php %ROOT_INSTALL_PATH%/autoalias autoalias:execute --command=$1 --params="${params// \ }")
-       php %ROOT_INSTALL_PATH%/autoalias autoalias:message --command=${command%% *}
-       $command
-   }
-   if [ -f ~/.autoalias_aliases ]; then
-       . ~/.autoalias_aliases
-   fi
- # ================================================================================
+# ================================================================================
+# Autoalias function execution. Do not alter.
+  function autoalias-function() {
+      # Set command and params.
+      command=${@:1:1}
+      params=${@:2}
+      # Request return variables.
+      declare -A return=$(php %ROOT_INSTALL_PATH%/autoalias autoalias:execute --command="${command}" --params="${params// \ }")
+      # Output message if needed.
+      if [ "${return[message]}" != "" ]; then
+          echo ${return[message]}
+      fi
+      # Execute command.
+      ${return[command]}
+      # Refresh autoaliases if needed.
+      if [ "${return[refresh]}" != "false" ]; then
+          php %ROOT_INSTALL_PATH%%/autoalias autoalias:refresh --composer-json="${return[refresh]}"
+          . ~/.autoalias_aliases
+      fi
+  }
+  # Include our autoalias_aliases.
+  if [ -f ~/.autoalias_aliases ]; then
+      . ~/.autoalias_aliases
+  fi
+# ================================================================================
  ```
 Where **%ROOT_INSTALL_PATH%** will be replaced with the location of where
 you installed the package. **So moving it will break the functionality!**
 
 When first installed the included .autoalias_aliases file will be copied
-to your home directory. This file contains a few presets at the moment:
+to your home directory. This file contains one preset:
 ```bash
-alias behat='autoalias-function behat'
-alias drush='autoalias-function drush'
-alias phing='autoalias-function phing'
-alias phpcbf='autoalias-function phpcbf'
-alias phpcs='autoalias-function phpcs'
+alias composer='autoalias-function composer'
 ```
-**Note:** future functionality will be able to automatically add new
-executables to the aliases file.
+**Note:** When executing `composer install` or `composer update` from
+within a composer project it will add any aliases from its bin folder
+that are not present yet in ~/.autoalias_aliases.
  
 ## Usage
 If all went well you should now receive a message when using one of
 these aliases in a composer project:
 ```
 $ drush status
- ------------------------------------------------------------------------------
- // Autoalias in use: /var/www/your-project/vendor/drush/drush/drush
- // If you wish to change these settings use the command "autoalias configure".
- ------------------------------------------------------------------------------
+Executing local /var/www/your-project/vendor/drush/drush/drush
  PHP executable         :  /usr/bin/php
  PHP configuration      :  /etc/php/7.0/cli/php.ini
  PHP OS                 :  Linux
@@ -87,7 +94,6 @@ $ drush status
  Drush configuration    :
  Drush alias files      :
 ```
-**Note:** The comment about the configuration is yet to be implemented.
 
 **Note:** If running your command has no output it might be you need to
 source the .bashrc yourself, for that you can use:

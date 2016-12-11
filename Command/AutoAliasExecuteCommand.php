@@ -2,7 +2,9 @@
 
 namespace Autoalias\Component\Console\Command;
 
+use Autoalias\Component\Console\Helper\AutoAliasComposerHelper;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -16,15 +18,19 @@ class AutoAliasExecuteCommand extends Command
     $this->setDescription('Execute autoalias.');
     $this->addOption('command', null, InputOption::VALUE_REQUIRED, 'The command to execute.');
     $this->addOption('params', null, InputOption::VALUE_OPTIONAL, 'The parameters for the command.');
+    $this->addOption('refresh', null, InputOption::VALUE_OPTIONAL, 'Whether or not to refresh the aliases.');
   }
 
   protected function execute(InputInterface $input, OutputInterface $output)
   {
-    //$output = new ConsoleOutput();
     // Set parameters.
+    $composer_json = AutoAliasComposerHelper::findComposerFile();
     $command = $input->getOption('command');
-    $params = $input->getOption('params');
-    $composer_json = AutoAliasExecuteCommand::findComposerFile();
+    $params = !empty($input->getOption('params')) ? str_replace('"', '', $input->getOption('params')) : '';
+    $refresh = !empty($input->getOption('refresh')) ? $input->getOption('refresh') : 'false';
+    $commandline = '';
+    $messages = array();
+    $output->setFormatter(new OutputFormatter(true));
 
     // Check if we have an executable of the requested alias in our bin folder.
     if (is_file($composer_json)) {
@@ -33,56 +39,34 @@ class AutoAliasExecuteCommand extends Command
       $composer = json_decode($json);
 
       if (!empty($composer->config->{'bin-dir'}) && file_exists($project_path . '/' . $composer->config->{'bin-dir'})) {
-        $bin_dir = rtrim($composer->config->{'bin-dir'}, '/');
-        $executable = realpath($project_path . '/' . $bin_dir . '/' . $command);
+        $bin_dir = $project_path . '/' . rtrim($composer->config->{'bin-dir'}, '/');
+        $executable = realpath($bin_dir . '/' . $command);
+        // Request autoalias refresh after command is executed.
+        echo strtok($params);
+        if ($command == 'composer' && in_array(strtok($params, ' '), array('install', 'update'))) {
+          $refresh = $composer_json;
+        }
         if (file_exists($executable)) {
-          // Write the path to the executable with it's params.
-          $output->writeln($executable . ' ' . $params);
+          // @todo: allow for custom params on global and/or project level.
+          $commandline = $executable . ' ' . $params;
+          $messages[] = '<comment>Executing local <info>' . $executable . '</info></comment>';
         }
         else {
-          $output->writeln($command . ' ' . $params);
+          $commandline = $command . ' ' . $params;
+          $messages[] = '<comment>Executing global <info>' . $command . '</info></comment>';
         }
       }
     }
     else {
-      $output->writeln($command . ' ' . $params);
+      $commandline = $command . ' ' . $params;
+      $messages[] = '<comment>Executing global <info>' . $command . '</info></comment>';
     }
+    $variables = array(
+      OutputFormatter::escape('[message]="') . implode('\n', $messages) . '"',
+      OutputFormatter::escape('[refresh]="') . $refresh . '"',
+      OutputFormatter::escape('[command]="') . $commandline . '"',
+    );
 
-    exit();
-  }
-
-  /**
-   * Returns absolute path to build.xml if found.
-   *
-   * This function takes the current working directory and searches upwards until the
-   * file gets found. When the path remains the same it means we have reached the
-   * root of the filesystem and we return false.
-   *
-   * @param string $path
-   *   This is always set with getcwd(). But because of the recursiveness of the
-   *   function we can not enter it in the function itself (I think).
-   * @return bool|string
-   *   False if we reached root without finding it. Absolute path if found.
-   */
-  private function findComposerFile($path = '')
-  {
-    $path = !empty($path) ? $path : getcwd();
-    $filename = 'composer.json';
-    $filepath = $path . '/' . $filename;
-    // If the current folder does not contain the build file, proceed.
-    if (!is_file($filepath)) {
-      // If we haven't reached root yet, retry in parent folder.
-      if (dirname($path) != $path) {
-        return $this->findComposerFile(dirname($path));
-      }
-      else {
-        return FALSE;
-      }
-    }
-    // If found return absolute path.
-    else {
-//      $output->writeln('<info>Succesfully loaded: ' . $filepath . '</info>');
-      return $filepath;
-    }
+    $output->write('( ' . implode(' ', $variables) . ' )');
   }
 }

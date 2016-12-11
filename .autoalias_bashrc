@@ -2,13 +2,25 @@
 # ================================================================================
 # Autoalias function execution. Do not alter.
   function autoalias-function() {
+      # Set command and params.
+      command=${@:1:1}
       params=${@:2}
-      command=$(php %ROOT_INSTALL_PATH%/autoalias autoalias:execute --command=$1 --params="${params// \ }")
-      php %ROOT_INSTALL_PATH%/autoalias autoalias:message --command=${command%% *}
-      $command
+      # Request return variables.
+      declare -A return=$(php %ROOT_INSTALL_PATH%/autoalias autoalias:execute --command="${command}" --params="${params// \ }")
+      # Output message.
+      if [ "${return[message]}" != "" ]; then
+          echo ${return[message]}
+      fi
+      # Execute command.
+      ${return[command]}
+      # Refresh autoaliases if needed.
+      if [ "${return[refresh]}" != "false" ]; then
+          php %ROOT_INSTALL_PATH%%/autoalias autoalias:refresh --composer-json="${return[refresh]}"
+          . ~/.autoalias_aliases
+      fi
   }
+  # Include our autoalias_aliases.
   if [ -f ~/.autoalias_aliases ]; then
       . ~/.autoalias_aliases
   fi
 # ================================================================================
-

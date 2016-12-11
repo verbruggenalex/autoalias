@@ -1,5 +1,1 @@
-alias behat='autoalias-function behat'
-alias drush='autoalias-function drush'
-alias phing='autoalias-function phing'
-alias phpcbf='autoalias-function phpcbf'
-alias phpcs='autoalias-function phpcs'
+alias composer='autoalias-function composer'
