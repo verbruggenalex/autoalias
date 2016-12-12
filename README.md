@@ -100,3 +100,11 @@ source the .bashrc yourself, for that you can use:
 ```
 $ . ~/.bashrc
 ```
+
+## Uninstall
+To help you uninstall we have provided a pre-uninstall script that you
+can activate by executing the following: 
+```
+$ composer remove verbruggenalex/autoalias
+$ composer update
+```

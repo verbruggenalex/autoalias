@@ -42,48 +42,25 @@ class AutoAliasRefreshCommand extends Command
   }
 
   /**
-   * Returns absolute path to build.xml if found.
+   * Helper function to put the aliases in the ~/.autoalias_aliases file.
    *
-   * This function takes the current working directory and searches upwards until the
-   * file gets found. When the path remains the same it means we have reached the
-   * root of the filesystem and we return false.
-   *
-   * @param string $path
-   *   This is always set with getcwd(). But because of the recursiveness of the
-   *   function we can not enter it in the function itself (I think).
-   * @return bool|string
-   *   False if we reached root without finding it. Absolute path if found.
+   * @param array $aliases
+   *   Array of filenames to make an alias for.
    */
-  private function findComposerFile($path = '')
-  {
-    $path = !empty($path) ? $path : getcwd();
-    $filename = 'composer.json';
-    $filepath = $path . '/' . $filename;
-    // If the current folder does not contain the build file, proceed.
-    if (!is_file($filepath)) {
-      // If we haven't reached root yet, retry in parent folder.
-      if (dirname($path) != $path) {
-        return $this->findComposerFile(dirname($path));
-      }
-      else {
-        return FALSE;
-      }
-    }
-    // If found return absolute path.
-    else {
-      return $filepath;
-    }
-  }
-
   private function buildAliases($aliases) {
     $home = exec('echo ~');
     $autoalias_aliases = $home . '/.autoalias_aliases';
+    $autoalias_strings = array();
     if ($contents = file_get_contents($autoalias_aliases)) {
       foreach ($aliases as $alias) {
         if (!preg_match("~alias " . $alias . "='autoalias-function " . $alias . "'~", $contents)) {
-          file_put_contents($home . '/.autoalias_aliases', "alias " . $alias . "='autoalias-function " . $alias . "'\n", FILE_APPEND);
+          $autoalias_strings[] = "alias " . $alias . "='autoalias-function " . $alias . "'";
+
         }
       }
+    }
+    if (!empty($autoalias_strings)) {
+      file_put_contents($home . '/.autoalias_aliases', implode(PHP_EOL, $autoalias_strings), FILE_APPEND);
     }
   }
 }
