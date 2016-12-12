@@ -103,8 +103,13 @@ $ . ~/.bashrc
 
 ## Uninstall
 To help you uninstall we have provided a pre-uninstall script that you
-can activate by executing the following: 
+can manually perform by executing the following command where
+<path to your global composer> has to be interchanged: 
 ```
-$ composer remove verbruggenalex/autoalias
-$ composer update
+$ php -r 'include "<path to your global composer>/vendor/autoload.php"; \Autoalias\Component\Console\Installer\Installer::preUninstall();'
 ```
+
+This script will:
+- unalias all the registered aliases.
+- remove the ~/.autoalias_aliases file.
+- remove the autoalias code from your ~/.bashrc.

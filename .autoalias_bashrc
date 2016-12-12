@@ -15,7 +15,7 @@
       ${return[command]}
       # Refresh autoaliases if needed.
       if [ "${return[refresh]}" != "false" ]; then
-          php %ROOT_INSTALL_PATH%%/autoalias autoalias:refresh --composer-json="${return[refresh]}"
+          php %ROOT_INSTALL_PATH%/autoalias autoalias:refresh --composer-json="${return[refresh]}"
           . ~/.autoalias_aliases
       fi
   }

@@ -1,6 +1,5 @@
 #!/usr/bin/env php
 <?php
-// File: fossil
 
 require __DIR__.'/vendor/autoload.php';
 
