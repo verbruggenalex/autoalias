@@ -11,6 +11,10 @@
             "Autoalias\\Component\\Console\\": ""
         }
     },
+    "bin-dir": "bin",
+    "bin": [
+      "autoalias"
+    ],
     "scripts": {
         "post-install-cmd": "Autoalias\\Component\\Console\\Installer\\Installer::postInstall",
         "post-update-cmd": "Autoalias\\Component\\Console\\Installer\\Installer::postInstall",
