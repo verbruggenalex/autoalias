@@ -11,7 +11,6 @@
             "Autoalias\\Component\\Console\\": ""
         }
     },
-    "bin-dir": "bin",
     "bin": [
       "autoalias"
     ],
