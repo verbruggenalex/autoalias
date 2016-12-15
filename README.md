@@ -5,6 +5,18 @@ commands only from the project root through the bin folder. This package
 makes aliases for each registered /bin executable and executes the one
 from your current project if it's available.
 
+**Roadmap**
+- console command to disable/enable autoalias.
+- console configuration command to whitelist or blacklist filenames on 
+project level and/or global level.
+- console configuration command to whitelist or blacklist system paths.
+- console configuration command to set default parameters per alias on
+project level and/or global level, for example:
+  - phing -find (to run from root child folders)
+  - phpcs --standard=\<standard\>
+  - etc...
+
+
 ## 1. Installation
 It is recommended that you make the installation in your global composer
 project. At this moment there is no use case for multiple instances.
@@ -99,9 +111,6 @@ alias composer='autoalias-execute composer'
 within a composer project it will add any aliases from its bin folder
 that are not present yet in ~/.autoalias_aliases. That way you build up
 an aliases index for every file.
-
-Next on the program is to give you the possibility to control 
-whitelisting or blacklisting certain files or paths.
  
 ## 2. Usage
 If all went well you should now receive a message when using one of
