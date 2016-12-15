@@ -6,9 +6,9 @@ makes aliases for each registered /bin executable and executes the one
 from your current project if it's available.
 
 **Roadmap**
->- provide alias for the autoalias console path itself.
->- allow the user to choose the name for that autoalias console alias.
->- console command to disable/enable autoalias.
+>- [provide alias for the autoalias console path itself.](https://github.com/verbruggenalex/autoalias/issues/2)
+>- [allow the user to choose the name for that autoalias console alias.](https://github.com/verbruggenalex/autoalias/issues/1)
+>- [console command to disable/enable autoalias.](https://github.com/verbruggenalex/autoalias/issues/3)
 >- console configuration command to whitelist or blacklist filenames on 
 project level and/or global level.
 >- console configuration command to whitelist or blacklist system paths.
