@@ -13,7 +13,7 @@ project. At this moment there is no use case for multiple instances.
 First off fetch the package. Currently there is no stable version, so 
 you will just have the latest master. There are still todo's before we
 can release the first stable version. So use at your own risk.
-```
+```bash
 $ composer global require "verbruggenalex/autoalias:dev-master"
 ```
 
@@ -21,7 +21,7 @@ $ composer global require "verbruggenalex/autoalias:dev-master"
 Execute the install script from the package. The easiest way to do this
 is to change the directory to the autoalias package root and execute the
 composer run-script command for it's post-install-cmd script.
-```
+```bash
 $ cd ~/.composer/vendor/verbruggenalex/autoalias
 $ composer run-script post-install-cmd
 ```
@@ -39,7 +39,7 @@ check out: [Command/AutoAliasExecuteCommand.php](Command/AutoAliasExecuteCommand
 
 But, if you are a trustful person and run our script, the result of the
 installation should look something like this:
-```
+```bash
 > Autoalias\Component\Console\Installer\Installer::postInstall
  ------------------------------------------------------------------------------
  // ~/.autoalias_aliases: file created.
@@ -53,7 +53,7 @@ inclusion in the **.bashrc** file of your home directory.
  
 This install script will not source your .bashrc file afterwards. So to
 complete the install process you need to execute `. ~/.bashrc` yourself.
-```
+```bash
 $ . ~/.bashrc
 ```
  
@@ -106,7 +106,7 @@ whitelisting or blacklisting certain files or paths.
 ## 2. Usage
 If all went well you should now receive a message when using one of
 these aliases in a composer project:
-```
+```bash
 $ drush status
 Executing local /var/www/your-project/vendor/drush/drush/drush
  PHP executable         :  /usr/bin/php
@@ -121,14 +121,14 @@ Executing local /var/www/your-project/vendor/drush/drush/drush
 
 **Note:** If running your command has no output it might be you need to
 source the .bashrc yourself, for that you can use:
-```
+```bash
 $ . ~/.bashrc
 ```
 
 ## 3. Uninstall
 To help you uninstall we have provided a pre-uninstall script that you
 can manually perform by executing the following command.
-```
+```bash
 $ autoalias-execute autoalias-uninstall
 ```
 
@@ -139,6 +139,6 @@ This script will:
 - source the ~/.bashrc file to complete the uninstall.
 
 After that you can remove the source code by executing:
-```
+```bash
 $ composer global remove "verbruggenalex/autoalias"
 ```
