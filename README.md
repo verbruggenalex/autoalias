@@ -1,44 +1,61 @@
 # autoalias
 A composer package that enables auto alias generation in composer
-projects.
+projects. It comes in handy for people that are tired of executing
+commands only from the project root through the bin folder. This package
+makes aliases for each registered /bin executable and executes the one
+from your current project if it's available.
 
 ## Installation
 It is recommended that you make the installation in your global composer
-project. Currently there is no usage for multiple instances.
+project. At this moment there is no use case for multiple instances.
 
 ### Get the package
 First off fetch the package. Currently there is no stable version, so 
-you will just have the latest master. There are still todo's before I
-can release the first version.
+you will just have the latest master. There are still todo's before we
+can release the first stable version. So use at your own risk.
 ```
 $ composer global require "verbruggenalex/autoalias:dev-master"
 ```
 
 ### Install the package
-Execute the install script from the package. This assumes your home 
-directory is the location of your global composer install. So adjust
-your path accordingly.
+Execute the install script from the package. The easiest way to do this
+is to change the directory to the autoalias package root and execute the
+composer run-script command for it's post-install-cmd script.
 ```
 $ cd ~/.composer/vendor/verbruggenalex/autoalias
 $ composer run-script post-install-cmd
 ```
+If you are uncomfortable with executing a foreign script on your server
+(which you should). You can also:
+- copy the contents of [.autoalias_bashrc](.autoalias_bashrc) file to 
+your own ~/.bashrc file replacing %ROOT_INSTALL_PATH% with the correct
+path of your package.
+- copy the [.autoalias_aliases](.autoalias_aliases) file to your home
+folder
+- refresh your ~/.bashrc file
 
-The result of the installation should look something like this:
+If you are still weary of what this alias does, and you should. You can
+check out: [Command/AutoAliasExecuteCommand.php](Command/AutoAliasExecuteCommand.php)
+
+But, if you are a trustful person and run our script, the result of the
+installation should look something like this:
 ```
 > Autoalias\Component\Console\Installer\Installer::postInstall
  ------------------------------------------------------------------------------
  // ~/.autoalias_aliases: file created.
  // ~/.bashrc: autoalias succesfully added.
- !! To complete installation refresh your .bashrc file by executing: . ~/.bashrc
  ------------------------------------------------------------------------------
 ```
 The important thing is the post installation script. It needs to:
 - create an **.autoalias_aliases** file in your home directory.
-- append the autoalias-execute and .autoalias_aliases file inclusion
-in the **.bashrc** file of your home directory.
+- append the autoalias-execute function and .autoalias_aliases file 
+inclusion in the **.bashrc** file of your home directory.
  
 This install script will not source your .bashrc file afterwards. So to
 complete the install process you need to execute `. ~/.bashrc` yourself.
+```
+$ . ~/.bashrc
+```
  
 Carefully check the message and/or verify that you have the needed
 file and code. Your .bashrc file should have the following appended:
@@ -80,7 +97,11 @@ alias composer='autoalias-execute composer'
 ```
 **Note:** When executing `composer install` or `composer update` from
 within a composer project it will add any aliases from its bin folder
-that are not present yet in ~/.autoalias_aliases.
+that are not present yet in ~/.autoalias_aliases. That way you build up
+an aliases index for every file.
+
+Next on the program is to give you the possibility to control 
+whitelisting or blacklisting certain files or paths.
  
 ## Usage
 If all went well you should now receive a message when using one of
