@@ -5,11 +5,11 @@ commands only from the project root through the bin folder. This package
 makes aliases for each registered /bin executable and executes the one
 from your current project if it's available.
 
-## Installation
+## 1. Installation
 It is recommended that you make the installation in your global composer
 project. At this moment there is no use case for multiple instances.
 
-### Get the package
+### 1.1 Get the package
 First off fetch the package. Currently there is no stable version, so 
 you will just have the latest master. There are still todo's before we
 can release the first stable version. So use at your own risk.
@@ -17,7 +17,7 @@ can release the first stable version. So use at your own risk.
 $ composer global require "verbruggenalex/autoalias:dev-master"
 ```
 
-### Install the package
+### 1.2 Install the package
 Execute the install script from the package. The easiest way to do this
 is to change the directory to the autoalias package root and execute the
 composer run-script command for it's post-install-cmd script.
@@ -103,7 +103,7 @@ an aliases index for every file.
 Next on the program is to give you the possibility to control 
 whitelisting or blacklisting certain files or paths.
  
-## Usage
+## 2. Usage
 If all went well you should now receive a message when using one of
 these aliases in a composer project:
 ```
@@ -125,7 +125,7 @@ source the .bashrc yourself, for that you can use:
 $ . ~/.bashrc
 ```
 
-## Uninstall
+## 3. Uninstall
 To help you uninstall we have provided a pre-uninstall script that you
 can manually perform by executing the following command.
 ```
