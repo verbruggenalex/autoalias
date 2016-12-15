@@ -24,7 +24,8 @@ class AutoAliasExecuteCommand extends Command
   protected function execute(InputInterface $input, OutputInterface $output)
   {
     // Set parameters.
-    $composer_json = AutoAliasComposerHelper::findComposerFile();
+    $composer_helper = new AutoAliasComposerHelper($input, $output);
+    $composer_json = $composer_helper->findComposerFile();
     $command = $input->getOption('command');
     $params = !empty($input->getOption('params')) ? str_replace('"', '', $input->getOption('params')) : '';
     $refresh = !empty($input->getOption('refresh')) ? $input->getOption('refresh') : 'false';
@@ -41,26 +42,53 @@ class AutoAliasExecuteCommand extends Command
       if (!empty($composer->config->{'bin-dir'}) && file_exists($project_path . '/' . $composer->config->{'bin-dir'})) {
         $bin_dir = $project_path . '/' . rtrim($composer->config->{'bin-dir'}, '/');
         $executable = realpath($bin_dir . '/' . $command);
-        // Request autoalias refresh after command is executed.
-        echo strtok($params);
-        if ($command == 'composer' && in_array(strtok($params, ' '), array('install', 'update'))) {
-          $refresh = $composer_json;
-        }
         if (file_exists($executable)) {
           // @todo: allow for custom params on global and/or project level.
           $commandline = $executable . ' ' . $params;
           $messages[] = '<comment>Executing local <info>' . $executable . '</info></comment>';
         }
         else {
-          $commandline = $command . ' ' . $params;
-          $messages[] = '<comment>Executing global <info>' . $command . '</info></comment>';
+          $global_command = exec('which ' . $command);
+          if (!empty($global_command)) {
+            $commandline = $global_command . ' ' . $params;
+            $messages[] = '<comment>Executing global <info>' . $global_command . '</info></comment>';
+          }
+          else {
+            // @TODO
+          }
+        }
+
+        // Request autoalias refresh after command is executed.
+        if ($command == 'composer' && in_array(strtok($params, ' '), array('install', 'update'))) {
+          $refresh = $composer_json;
         }
       }
     }
     else {
-      $commandline = $command . ' ' . $params;
-      $messages[] = '<comment>Executing global <info>' . $command . '</info></comment>';
+      $global_command = exec('which ' . $command);
+      if (!empty($global_command)) {
+        $commandline = $global_command . ' ' . $params;
+        $messages[] = '<comment>Executing global <info>' . $global_command . '</info></comment>';
+      }
+      else {
+        // @TODO
+      }
     }
+    // Uninstall command: unaliases and execute uninstall script.
+    if ($command == 'autoalias-uninstall') {
+      $home = exec('echo ~');
+      $autoalias_aliases = $home . '/.autoalias_aliases';
+      if ($aliases = file_get_contents($autoalias_aliases)) {
+        preg_match_all('/alias (.*?)=.*?/s', $aliases, $matches);
+        if (!empty($matches[1])) {
+          $unalias_command =  'unalias ' . implode(' ', $matches[1]) . ';';
+        }
+      }
+      $uninstall_command = 'php -r \'include \\"' . $home . '/.composer/vendor/autoload.php\\"; \Autoalias\Component\Console\Installer\Installer::preUninstall();\'';
+      $commandline = $uninstall_command . ' && ' . $unalias_command;
+    }
+
+    // Send variables in associative array.
     $variables = array(
       OutputFormatter::escape('[message]="') . implode('\n', $messages) . '"',
       OutputFormatter::escape('[refresh]="') . $refresh . '"',

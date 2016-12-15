@@ -36,18 +36,11 @@ class Installer
     $bash = exec('echo which bash');
     $bashrc = $home . '/.bashrc';
     $autoalias_aliases = $home . '/.autoalias_aliases';
+    $messages = array();
 
     $output = new ConsoleOutput();
 
     $output->writeln('<comment> ------------------------------------------------------------------------------</comment>');
-
-    // @todo: find a way to unalias the set autoaliases.
-    if (file_exists($autoalias_aliases) && unlink($autoalias_aliases)) {
-      $output->writeln('<comment> // ~/.autoalias_aliases: file deleted.</comment>');
-    }
-    else {
-      $output->writeln('<comment> // ~/.autoalias_aliases: unable to remove, may not exist.</comment>');
-    }
 
     if (file_exists($bashrc) && $contents = file_get_contents($bashrc)) {
       if ($filtered_contents = preg_replace('/# \=+\n# Autoalias function execution\. Do not alter\.\n(.*)# \=+/s', '', $contents)) {
@@ -71,10 +64,15 @@ class Installer
       $output->writeln('<comment> // ~/.bashrc: file not found.</comment>');
     }
 
-    $output->writeln('<comment> ------------------------------------------------------------------------------</comment>');
+    if (file_exists($autoalias_aliases)) {
+      if (unlink($autoalias_aliases)) {
+        $output->writeln('<comment> // ~/.autoalias_aliases: file deleted.</comment>');
+      } else {
+        $output->writeln('<comment> // ~/.autoalias_aliases: unable to remove, may not exist.</comment>');
+      }
+    }
 
-    // Refresh the bash.
-    passthru('/bin/bash');
+    $output->writeln('<comment> ------------------------------------------------------------------------------</comment>');
   }
 
   protected static function createComposerAliasesFile($home) {

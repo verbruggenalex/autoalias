@@ -19,7 +19,8 @@ Execute the install script from the package. This assumes your home
 directory is the location of your global composer install. So adjust
 your path accordingly.
 ```
-$ composer run-script post-install-cmd  ~/.composer/vendor/verbruggenalex/autoalias
+$ cd ~/.composer/vendor/verbruggenalex/autoalias
+$ composer run-script post-install-cmd
 ```
 
 The result of the installation should look something like this:
