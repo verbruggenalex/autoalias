@@ -2,7 +2,7 @@
 # ================================================================================
 # Autoalias function execution. Do not alter.
   AUTOALIAS_ROOT=%ROOT_INSTALL_PATH%
-  function autoalias-function() {
+  function autoalias-execute() {
       # Set command and params.
       command=${@:1:1}
       params=${@:2}

@@ -24,8 +24,10 @@ class Installer
 
     $output->writeln(' ------------------------------------------------------------------------------</comment>');
 
-    // Refresh the bash.
-    passthru('/bin/bash');
+    // @TODO: Replace this refresh with a message requesting the user to execute the
+    // command in the current console so we don't lose history or colors and stuff...
+//    // Refresh the bash.
+//    passthru('/bin/bash');
 
   }
 

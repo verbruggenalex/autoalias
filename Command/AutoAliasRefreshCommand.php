@@ -53,8 +53,8 @@ class AutoAliasRefreshCommand extends Command
     $autoalias_strings = array();
     if ($contents = file_get_contents($autoalias_aliases)) {
       foreach ($aliases as $alias) {
-        if (!preg_match("~alias " . $alias . "='autoalias-function " . $alias . "'~", $contents)) {
-          $autoalias_strings[] = "alias " . $alias . "='autoalias-function " . $alias . "'";
+        if (!preg_match("~alias " . $alias . "='autoalias-execute " . $alias . "'~", $contents)) {
+          $autoalias_strings[] = "alias " . $alias . "='autoalias-execute " . $alias . "'";
 
         }
       }

@@ -29,36 +29,38 @@ The result of the installation should look something like this:
  ------------------------------------------------------------------------------
  // ~/.autoalias_aliases: file created.
  // ~/.bashrc: autoalias succesfully added.
+ !! To complete installation refresh your .bashrc file by executing: . ~/.bashrc
  ------------------------------------------------------------------------------
 ```
 The important thing is the post installation script. It needs to:
 - create an **.autoalias_aliases** file in your home directory.
-- append the autoalias-function and .autoalias_aliases file inclusion
+- append the autoalias-execute and .autoalias_aliases file inclusion
 in the **.bashrc** file of your home directory.
  
-This install script will source your .bashrc afterwards, such that it
-may become activated.
+This install script will not source your .bashrc file afterwards. So to
+complete the install process you need to execute `. ~/.bashrc` yourself.
  
 Carefully check the message and/or verify that you have the needed
 file and code. Your .bashrc file should have the following appended:
 ```bash
 # ================================================================================
 # Autoalias function execution. Do not alter.
-  function autoalias-function() {
+  AUTOALIAS_ROOT=%ROOT_INSTALL_PATH%
+  function autoalias-execute() {
       # Set command and params.
       command=${@:1:1}
       params=${@:2}
       # Request return variables.
-      declare -A return=$(php %ROOT_INSTALL_PATH%/autoalias autoalias:execute --command="${command}" --params="${params// \ }")
-      # Output message if needed.
+      declare -A return=$(php $AUTOALIAS_ROOT/autoalias autoalias:execute --command="${command}" --params="${params// \ }")
+      # Output message.
       if [ "${return[message]}" != "" ]; then
           echo ${return[message]}
       fi
       # Execute command.
-      ${return[command]}
+      eval ${return[command]}
       # Refresh autoaliases if needed.
       if [ "${return[refresh]}" != "false" ]; then
-          php %ROOT_INSTALL_PATH%%/autoalias autoalias:refresh --composer-json="${return[refresh]}"
+          php $AUTOALIAS_ROOT/autoalias autoalias:refresh --composer-json="${return[refresh]}"
           . ~/.autoalias_aliases
       fi
   }
@@ -74,7 +76,7 @@ you installed the package. **So moving it will break the functionality!**
 When first installed the included .autoalias_aliases file will be copied
 to your home directory. This file contains one preset:
 ```bash
-alias composer='autoalias-function composer'
+alias composer='autoalias-execute composer'
 ```
 **Note:** When executing `composer install` or `composer update` from
 within a composer project it will add any aliases from its bin folder
@@ -104,13 +106,17 @@ $ . ~/.bashrc
 
 ## Uninstall
 To help you uninstall we have provided a pre-uninstall script that you
-can manually perform by executing the following command where
-<path to your global composer> has to be interchanged: 
+can manually perform by executing the following command.
 ```
-$ php -r 'include "<path to your global composer>/vendor/autoload.php"; \Autoalias\Component\Console\Installer\Installer::preUninstall();'
+$ autoalias-execute autoalias-uninstall
 ```
 
 This script will:
 - unalias all the registered aliases.
 - remove the ~/.autoalias_aliases file.
 - remove the autoalias code from your ~/.bashrc.
+
+After that you can remove the source code by executing:
+```
+$ composer global remove "verbruggenalex/autoalias"
+```

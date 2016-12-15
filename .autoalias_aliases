@@ -1,1 +1,1 @@
-alias composer='autoalias-function composer'
+alias composer='autoalias-execute composer'
