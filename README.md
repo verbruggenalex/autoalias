@@ -136,6 +136,7 @@ This script will:
 - unalias all the registered aliases.
 - remove the ~/.autoalias_aliases file.
 - remove the autoalias code from your ~/.bashrc.
+- source the ~/.bashrc file to complete the uninstall.
 
 After that you can remove the source code by executing:
 ```
