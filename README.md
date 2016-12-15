@@ -6,15 +6,17 @@ makes aliases for each registered /bin executable and executes the one
 from your current project if it's available.
 
 **Roadmap**
-- console command to disable/enable autoalias.
-- console configuration command to whitelist or blacklist filenames on 
+>- provide alias for the autoalias console path itself.
+>- allow the user to choose the name for that autoalias console alias.
+>- console command to disable/enable autoalias.
+>- console configuration command to whitelist or blacklist filenames on 
 project level and/or global level.
-- console configuration command to whitelist or blacklist system paths.
-- console configuration command to set default parameters per alias on
+>- console configuration command to whitelist or blacklist system paths.
+>- console configuration command to set default parameters per alias on
 project level and/or global level, for example:
-  - phing -find (to run from root child folders)
-  - phpcs --standard=\<standard\>
-  - etc...
+>  - phing -find (to run from root child folders)
+>  - phpcs --standard=\<standard\>
+>  - etc...
 
 
 ## 1. Installation
