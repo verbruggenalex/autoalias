@@ -43,7 +43,7 @@ class AutoAliasComposerHelper
     if (!is_file($filepath)) {
       // If we haven't reached root yet, retry in parent folder.
       if (dirname($path) != $path) {
-        return $this->findComposerFile(dirname($path));
+        return self::findComposerFile(dirname($path));
       }
       else {
         return FALSE;
@@ -52,6 +52,34 @@ class AutoAliasComposerHelper
     // If found return absolute path.
     else {
       return $filepath;
+    }
+  }
+
+  public function retrieveCommand($command, $path = '') {
+    $path = !empty($path) ? $path : getcwd();
+    $composer_json = self::findComposerFile($path);
+    // Get first found composer.json file.
+    if ($composer_json && is_file($composer_json)) {
+      $project_path = dirname($composer_json);
+      $json = file_get_contents($composer_json);
+      $composer = json_decode($json);
+      $bin_dir = isset($composer->config->{'bin-dir'}) ? rtrim($composer->config->{'bin-dir'}) : "";
+      $bin_dir_path = $project_path . '/' . $bin_dir;
+      $command_path = $bin_dir_path . '/' . $command;
+      // If we have a matching command.
+      if (!empty($bin_dir) && file_exists($command_path)) {
+        // Return absolute command path.
+        return realpath($command_path);
+      }
+      else {
+        // Retry.
+        return self::retrieveCommand($command, dirname($project_path));
+      }
+    }
+    else {
+      // Return the global command path (can be empty).
+      $global_command = exec('which ' . $command);
+      return $global_command;
     }
   }
 }

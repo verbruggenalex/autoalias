@@ -32,47 +32,17 @@ class AutoAliasExecuteCommand extends Command
     $commandline = '';
     $messages = array();
     $output->setFormatter(new OutputFormatter(true));
+    $executable = $composer_helper->retrieveCommand($command);
 
-    // Check if we have an executable of the requested alias in our bin folder.
-    if (is_file($composer_json)) {
-      $project_path = dirname($composer_json);
-      $json = file_get_contents($composer_json);
-      $composer = json_decode($json);
-
-      if (!empty($composer->config->{'bin-dir'}) && file_exists($project_path . '/' . $composer->config->{'bin-dir'})) {
-        $bin_dir = $project_path . '/' . rtrim($composer->config->{'bin-dir'}, '/');
-        $executable = realpath($bin_dir . '/' . $command);
-        if (file_exists($executable)) {
-          // @todo: allow for custom params on global and/or project level.
-          $commandline = $executable . ' ' . $params;
-          $messages[] = '<comment>Executing local <info>' . $executable . '</info></comment>';
-        }
-        else {
-          $global_command = exec('which ' . $command);
-          if (!empty($global_command)) {
-            $commandline = $global_command . ' ' . $params;
-            $messages[] = '<comment>Executing global <info>' . $global_command . '</info></comment>';
-          }
-          else {
-            // @TODO
-          }
-        }
-
-        // Request autoalias refresh after command is executed.
-        if ($command == 'composer' && in_array(strtok($params, ' '), array('install', 'update'))) {
-          $refresh = $composer_json;
-        }
-      }
+    if (!empty($executable)) {
+      // @todo: allow for custom params on global and/or project level.
+      $commandline = $executable . ' ' . $params;
+      $messages[] = '<comment>Executing: <info>' . $executable . '</info></comment>';
     }
-    else {
-      $global_command = exec('which ' . $command);
-      if (!empty($global_command)) {
-        $commandline = $global_command . ' ' . $params;
-        $messages[] = '<comment>Executing global <info>' . $global_command . '</info></comment>';
-      }
-      else {
-        // @TODO
-      }
+
+    // Request autoalias refresh after command is executed.
+    if ($command == 'composer' && in_array(strtok($params, ' '), array('install', 'update'))) {
+      $refresh = $composer_json;
     }
     // Uninstall command: unaliases and execute uninstall script.
     if ($command == 'autoalias-uninstall') {
