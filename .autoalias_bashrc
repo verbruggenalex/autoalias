@@ -13,7 +13,7 @@
           echo ${return[message]}
       fi
       # Execute command.
-      eval ${return[command]}
+      ${return[command]}
       # Refresh autoaliases if needed.
       if [ "${return[refresh]}" != "false" ]; then
           php $AUTOALIAS_ROOT/autoalias autoalias:refresh --composer-json="${return[refresh]}"

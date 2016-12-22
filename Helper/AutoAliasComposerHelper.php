@@ -55,6 +55,17 @@ class AutoAliasComposerHelper
     }
   }
 
+  /**
+   * A recursive helper function to search upwards the directories for executables in
+   * a composer project. If none are found it returns the global or original command.
+   *
+   * @param string $command
+   *   The command to search for.
+   * @param string $path
+   *   The starting path.
+   * @return mixed
+   *   Returns a full command path or the original string.
+   */
   public function retrieveCommand($command, $path = '') {
     $path = !empty($path) ? $path : getcwd();
     $composer_json = self::findComposerFile($path);
@@ -77,9 +88,9 @@ class AutoAliasComposerHelper
       }
     }
     else {
-      // Return the global command path (can be empty).
+      // Return the global command path or original command.
       $global_command = exec('which ' . $command);
-      return $global_command;
+      return empty($global_command) ? $command : $global_command;
     }
   }
 }
